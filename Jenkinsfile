@@ -1,37 +1,52 @@
-@Library('my-shared-library') _  // Reference the shared library
-
 pipeline {
-    agent any
 
-    stages {
-         stage('Hello') {
-            steps {
-                script {
-                    sayHello("Anil")
-                }
-            }
-        }
-        stage('Install Maven Dependencies') {
-            steps {
-                script {
-                    installMavenDependencies()
-                }
-            }
-        }
-        stage('Build') {
-            steps {
-                script {
-                    buildProjectWithMaven()
-                }
-            }
-        }
-         stage('Run Tests') {
-            steps {
-                script {
-                    runTestsWithMaven()
-                }
-            }
-        }
-        
-    }
-}
+    agent any
+
+
+
+    stages {
+
+		stage('install dependency') {
+
+            steps {
+
+                sh 'mvn clean install' // Example for a Maven project
+
+            }
+
+        }
+       
+
+        stage('Build') {
+
+            steps {
+
+                sh 'mvn clean install -DskipTests' // Example for a Maven project
+
+            }
+
+        }
+
+        stage('Test') {
+
+            steps {
+
+                sh 'mvn test' // Example for a Maven project
+
+            }
+
+        }
+
+        stage('Deploy') {
+
+            steps {
+
+                sh 'echo "Deploying..."' // Replace with your deployment steps
+
+            }
+
+        }
+
+    }
+
+} 
