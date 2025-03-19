@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         MVN_CMD = 'mvn'
+        RECIPIENTS = 'anilannamalair@gmail.com'
     }
 
     stages {
@@ -24,6 +25,20 @@ pipeline {
             }
         }
 
+        stage('Lint') {
+            steps {
+                sh 'echo "Running lint checks..."'
+                // Add your linting commands here
+            }
+        }
+
+        stage('Code Quality') {
+            steps {
+                sh 'echo "Running code quality checks..."'
+                // Add your code quality check commands here
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh 'echo "Deploying..."' // Replace with your deployment steps
@@ -33,14 +48,14 @@ pipeline {
 
     post {
         success {
-            mail to: 'team@example.com',
-                 subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
+            emailext to: "${RECIPIENTS}",
+                     subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
         }
         failure {
-            mail to: 'team@example.com',
-                 subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                 body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
+            emailext to: "${RECIPIENTS}",
+                     subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
         }
         always {
             cleanWs()
