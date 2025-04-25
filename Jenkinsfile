@@ -5,71 +5,68 @@ pipeline {
         MVN_CMD = 'mvn'
         RECIPIENTS = 'anilannamalair@gmail.com'
         EMAIL_SENDER = 'anilannamalair@gmail.com'
-        JOB_NAME = 'CI Pipeline'  // Hardcoded Job Name
-        BUILD_NUMBER = '1'        // Hardcoded Build Number
+        JOB_NAME = 'CI Pipeline'
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        SMTP_SERVER = 'smtp.gmail.com'
+        SMTP_PORT = '465'
+        EMAIL_USERNAME = credentials('EMAIL_USERNAME') // Jenkins secret ID
+        EMAIL_PASSWORD = credentials('EMAIL_PASSWORD') // Jenkins secret ID
     }
 
     stages {
         stage('Checkout Source Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/anilannamalair/shared-petstore-demo-medium.git'
+                checkout scm
             }
         }
 
         stage('Install Dependency') {
             steps {
-                sh "${MVN_CMD} clean install"
+                sh "${env.MVN_CMD} clean install"
             }
         }
 
         stage('Build') {
             steps {
-                sh "${MVN_CMD} clean package -DskipTests"
+                sh "${env.MVN_CMD} clean package -DskipTests"
             }
         }
 
         stage('Test') {
             steps {
-                sh "${MVN_CMD} test"
+                sh "${env.MVN_CMD} test"
             }
         }
 
         stage('Lint') {
             steps {
-                sh 'echo "Running lint checks..."'
-                // Add your linting commands here
+                echo "Running lint checks..."
             }
         }
 
         stage('Code Quality') {
             steps {
-                sh 'echo "Running code quality checks..."'
-                // Add your code quality check commands here
+                echo "Running code quality checks..."
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'echo "Deploying..."' // Replace with your deployment steps
+                echo "Deploying..."
             }
         }
     }
 
     post {
         success {
-            emailext to: "${RECIPIENTS}",
-                     from: "${EMAIL_SENDER}",
-                     subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
-        }
-        failure {
-            emailext to: "${RECIPIENTS}",
-                     from: "${EMAIL_SENDER}",
-                     subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
-        }
-        always {
-            cleanWs() // Clean the workspace after every run
+            echo "Sending success email..."
+            sh '''
+                curl --verbose --url "smtps://${SMTP_SERVER}:${SMTP_PORT}" --ssl-reqd \
+                    --mail-from "${EMAIL_SENDER}" \
+                    --mail-rcpt "${RECIPIENTS}" \
+                    --upload-file <(echo -e "From: ${EMAIL_SENDER}\\nTo: ${RECIPIENTS}\\nSubject: SUCCESS: Job ${JOB_NAME} [${BUILD_NUMBER}]\\n\\nJob ${JOB_NAME} [${BUILD_NUMBER}] succeeded.") \
+                    --user "${EMAIL_USERNAME}:${EMAIL_PASSWORD}"
+            '''
         }
     }
 }
