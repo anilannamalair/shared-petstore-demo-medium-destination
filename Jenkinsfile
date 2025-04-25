@@ -4,9 +4,16 @@ pipeline {
     environment {
         MVN_CMD = 'mvn'
         RECIPIENTS = 'anilannamalair@gmail.com'
+        EMAIL_SENDER = 'anilannamalair@gmail.com'
     }
 
     stages {
+        stage('Checkout Source Code') {
+            steps {
+                git branch: 'main', url: 'https://github.com/anilannamalair/shared-petstore-demo-medium.git'
+            }
+        }
+
         stage('Install Dependency') {
             steps {
                 sh "${MVN_CMD} clean install"
@@ -49,11 +56,13 @@ pipeline {
     post {
         success {
             emailext to: "${RECIPIENTS}",
+                     from: "${EMAIL_SENDER}",
                      subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                      body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
         }
         failure {
             emailext to: "${RECIPIENTS}",
+                     from: "${EMAIL_SENDER}",
                      subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
                      body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
         }
