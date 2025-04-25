@@ -57,17 +57,17 @@ pipeline {
         success {
             emailext to: "${RECIPIENTS}",
                      from: "${EMAIL_SENDER}",
-                     subject: "SUCCESS: Job \"${env.JOB_NAME} [${env.BUILD_NUMBER}]\"",
-                     body: "Job \"${env.JOB_NAME} [${env.BUILD_NUMBER}]\" succeeded."
+                     subject: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' succeeded."
         }
         failure {
             emailext to: "${RECIPIENTS}",
                      from: "${EMAIL_SENDER}",
-                     subject: "FAILURE: Job \"${env.JOB_NAME} [${env.BUILD_NUMBER}]\"",
-                     body: "Job \"${env.JOB_NAME} [${env.BUILD_NUMBER}]\" failed."
+                     subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                     body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
         }
         always {
-            cleanWs()
+            cleanWs() // Clean the workspace after every run
         }
     }
 }
