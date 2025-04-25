@@ -5,6 +5,8 @@ pipeline {
         MVN_CMD = 'mvn'
         RECIPIENTS = 'anilannamalair@gmail.com'
         EMAIL_SENDER = 'anilannamalair@gmail.com'
+        JOB_NAME = 'CI Pipeline'  // Hardcoded Job Name
+        BUILD_NUMBER = '1'        // Hardcoded Build Number
     }
 
     stages {
